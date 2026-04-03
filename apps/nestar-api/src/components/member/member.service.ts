@@ -7,7 +7,7 @@ export class MemberService {
 
   constructor(@InjectModel('Member') private readonly memberModel: Model<null>) {}
 
-  public async signUp(): Promise<string> {
+  public async signup(): Promise<string> {
     return 'Sign up successful';
   }
 
