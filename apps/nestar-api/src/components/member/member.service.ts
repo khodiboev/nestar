@@ -1,8 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Member } from '../../libs/dto/member/member';
 import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
+import { MemberStatus } from '../../libs/enums/member.enum';
+import { Message } from '../../libs/enums/common.enum';
 
 @Injectable()
 export class MemberService {
@@ -12,16 +14,31 @@ export class MemberService {
 		//TODO: Hash password
 		try {
 			const result = await this.memberModel.create(input);
-      //TODO: Authentication via Token
+			//TODO: Authentication via Token
 			return result;
 		} catch (err) {
-      console.error('Error, Service.model:', err);
-      throw new BadRequestException(err);
-    }
+			console.error('Error, Service.model:', err);
+			throw new BadRequestException(err);
+		}
 	}
 
 	public async login(input: LoginInput): Promise<Member> {
-		return new Member(); // Replace with actual login logic
+		const { memberNick, memberPassword } = input;
+		const response = await this.memberModel.findOne({ memberNick: memberNick }).select('+memberPassword').exec();
+
+		if (!response || response.memberStatus === MemberStatus.DELETE) {
+			throw new InternalServerErrorException(Message.NO_MEMBER_NICK);
+		} else if (response.memberStatus === MemberStatus.BLOCK) {
+			throw new InternalServerErrorException(Message.BLOCKED_USER);
+		}
+
+		//TODO: compare password
+    console.log("response:", response);
+		const isMatch = memberPassword === response.memberPassword;
+		if (!isMatch) {
+			throw new InternalServerErrorException(Message.WRONG_PASSWORD);
+		}
+		return response;
 	}
 
 	public async updateMember(): Promise<string> {
