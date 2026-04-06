@@ -17,7 +17,7 @@ export class MemberService {
 			//TODO: Authentication via Token
 			return result;
 		} catch (err) {
-			console.error('Error, Service.model:', err.message);
+			console.error('Error, Service.model:', err);
 			throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
 		}
 	}
