@@ -1,4 +1,4 @@
-import { Mutation, Resolver, Query, Args } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
 import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
 import { Member } from '../../libs/dto/member/member';
@@ -10,25 +10,23 @@ export class MemberResolver {
 	@Mutation(() => Member)
 	public async signup(@Args('input') input: MemberInput): Promise<Member> {
 		console.log('Mutation: signup');
-		console.log('Input:', input);
 		return this.memberService.signup(input);
 	}
 
 	@Mutation(() => Member)
 	public async login(@Args('input') input: LoginInput): Promise<Member> {
 		console.log('Mutation: login');
-		console.log('Input:', input);
 		return this.memberService.login(input);
 	}
 
 	@Mutation(() => String)
-	public async updateMember(): Promise<string> {
+	public async updateMember(): Promise<String> {
 		console.log('Mutation: updateMember');
 		return this.memberService.updateMember();
 	}
 
 	@Query(() => String)
-	public async getMember(): Promise<string> {
+	public async getMember(): Promise<String> {
 		console.log('Query: getMember');
 		return this.memberService.getMember();
 	}

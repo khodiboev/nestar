@@ -11,20 +11,23 @@ export class MemberService {
 	constructor(@InjectModel('Member') private readonly memberModel: Model<Member>) {}
 
 	public async signup(input: MemberInput): Promise<Member> {
-		//TODO: Hash password
+		// TODO: Hash password
 		try {
 			const result = await this.memberModel.create(input);
-			//TODO: Authentication via Token
+			// TODO: Authentication via TOKEN
 			return result;
 		} catch (err) {
-			console.error('Error, Service.model:', err);
+			console.log('Error, Service.model:', err.message);
 			throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
 		}
 	}
 
 	public async login(input: LoginInput): Promise<Member> {
 		const { memberNick, memberPassword } = input;
-		const response = await this.memberModel.findOne({ memberNick: memberNick }).select('+memberPassword').exec();
+		const response: Member | null = await this.memberModel
+			.findOne({ memberNick: memberNick })
+			.select('+memberPassword')
+			.exec();
 
 		if (!response || response.memberStatus === MemberStatus.DELETE) {
 			throw new InternalServerErrorException(Message.NO_MEMBER_NICK);
@@ -32,20 +35,18 @@ export class MemberService {
 			throw new InternalServerErrorException(Message.BLOCKED_USER);
 		}
 
-		//TODO: compare password
-    console.log("response:", response);
+		// TODO: Compare passwords
 		const isMatch = memberPassword === response.memberPassword;
-		if (!isMatch) {
-			throw new InternalServerErrorException(Message.WRONG_PASSWORD);
-		}
+		if (!isMatch) throw new InternalServerErrorException(Message.WRONG_PASSWORD);
+
 		return response;
 	}
 
-	public async updateMember(): Promise<string> {
-		return 'Member updated successful';
+	public async updateMember(): Promise<String> {
+		return 'updateMember executed!';
 	}
 
-	public async getMember(): Promise<string> {
-		return 'Member retrieved successful';
+	public async getMember(): Promise<String> {
+		return 'getMember executed!';
 	}
 }
