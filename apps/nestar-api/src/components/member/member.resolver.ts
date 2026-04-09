@@ -2,6 +2,10 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
 import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
 import { Member } from '../../libs/dto/member/member';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { AuthMember } from '../auth/decorators/authMember.decorator';
+import type { ObjectId } from 'mongoose';
 
 // Qabulxona — foydalanuvchidan kelgan so'rovlarni qabul qilib, Service ga uzatadi
 @Resolver()
@@ -28,11 +32,23 @@ export class MemberResolver {
 
 	// Foydalanuvchi ma'lumotlarini yangilaydi (hali to'liq yozilmagan)
 	// Authonticated
+	@UseGuards(AuthGuard)
 	@Mutation(() => String)
-	public async updateMember(): Promise<String> {
+	public async updateMember(@AuthMember("_id") memberId: ObjectId): Promise<String> {
 		console.log('Mutation: updateMember');
 		return this.memberService.updateMember();
 	}
+
+
+		@UseGuards(AuthGuard)
+	@Query(() => String)
+	public async checkAuth(@AuthMember("memberNick") memberNick: string): Promise<String> {
+		console.log('Mutation: checkAuth');
+		console.log('Authenticated memberNick:', memberNick);
+		return `Hi ${memberNick}`;
+	}
+
+
 
 	// Bitta foydalanuvchi ma'lumotlarini qaytaradi (hali to'liq yozilmagan)
 	@Query(() => String)
