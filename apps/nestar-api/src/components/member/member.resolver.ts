@@ -9,6 +9,7 @@ import type { ObjectId } from 'mongoose';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { MemberUpdate } from '../../libs/dto/member/member.update';
 
 // Qabulxona — foydalanuvchidan kelgan so'rovlarni qabul qilib, Service ga uzatadi
 @Resolver()
@@ -33,15 +34,6 @@ export class MemberResolver {
 		return this.memberService.login(input);
 	}
 
-	// Foydalanuvchi ma'lumotlarini yangilaydi (hali to'liq yozilmagan)
-	// Authonticated
-	@UseGuards(AuthGuard)
-	@Mutation(() => String)
-	public async updateMember(@AuthMember('_id') memberId: ObjectId): Promise<String> {
-		console.log('Mutation: updateMember');
-		return this.memberService.updateMember();
-	}
-
 	// Foydalanuvchi o'z ma'lumotlarini ko'radi (test)
 	@UseGuards(AuthGuard)
 	@Query(() => String)
@@ -58,6 +50,19 @@ export class MemberResolver {
 		console.log('Query: checkAuthRoles');
 		console.log('Authenticated memberNick:', authMember.memberNick);
 		return `Hi ${authMember.memberNick}, you are ${authMember.memberType}, (memberId: ${authMember._id})`;
+	}
+
+	// Foydalanuvchi ma'lumotlarini yangilaydi (hali to'liq yozilmagan)
+	// Authonticated
+	@UseGuards(AuthGuard)
+	@Mutation(() => Member)
+	public async updateMember(
+		@Args('input') input: MemberUpdate,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Member> {
+		console.log('Mutation: updateMember');
+		delete (input as any)._id; // Foydalanuvchi o'z ID sini yangilay olmaydi, shuning uchun uni o'chirib tashlaymiz
+		return this.memberService.updateMember(memberId, input);
 	}
 
 	// Bitta foydalanuvchi ma'lumotlarini qaytaradi (hali to'liq yozilmagan)
