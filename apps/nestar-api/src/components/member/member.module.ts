@@ -21,6 +21,8 @@ import { MemberService } from './member.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import MemberSchema from '../../schemas/Member.model';
 import { AuthModule } from '../auth/auth.module';
+import { View } from '../../libs/dto/view/view';
+import { ViewModule } from '../view/view.module';
 
 @Module({
 	imports: [
@@ -29,6 +31,7 @@ import { AuthModule } from '../auth/auth.module';
 
 		// Login/token tekshiruvi uchun AuthModule ni ham ulaymiz
 		AuthModule,
+		ViewModule
 	],
 
 	// Resolver va Service ni ro'yxatdan o'tkazamiz — ular birgalikda ishlaydi
