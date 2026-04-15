@@ -68,6 +68,8 @@ export class MemberService {
 	}
 
 	public async updateMember(memberId: ObjectId, input: MemberUpdate): Promise<Member> {
+		// Faqat ACTIVE holatdagi foydalanuvchini yangilash mumkin
+		// { new: true } — yangilangandan KEYIN gi hujjatni qaytaradi (eski emas)
 		const result: Member | null = await this.memberModel
 			.findOneAndUpdate(
 				{
@@ -79,61 +81,81 @@ export class MemberService {
 			)
 			.exec();
 		if (!result) {
+			// Foydalanuvchi topilmasa yoki ACTIVE bo'lmasa xato qaytaramiz
 			throw new InternalServerErrorException(Message.UPLOAD_FAILED);
 		}
+		// Yangilangan ma'lumotlar bilan yangi token beramiz
 		result.accessToken = await this.authService.createToken(result);
 		return result;
 	}
 
 	public async getMember(memberId: ObjectId, targetId: ObjectId): Promise<Member> {
+		// ACTIVE yoki BLOCK bo'lgan foydalanuvchini izlaymiz
+		// (DELETE qilinganlar ko'rsatilmaydi)
 		const search: T = {
 			_id: targetId,
 			memberStatus: {
 				$in: [MemberStatus.ACTIVE, MemberStatus.BLOCK],
 			},
 		};
+
+		// .lean() — oddiy JS obyektini qaytaradi (Mongoose hujjati emas),
+		// bu bilan quyida memberViews++ qilish ishlaydi
 		const targetMember = await this.memberModel.findOne(search).lean().exec();
 		if (!targetMember) {
 			throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 		}
 
 		if (memberId) {
-			//record view
+			// Faqat login qilgan foydalanuvchi ko'rganida ko'rishni qayd etamiz
 			const viewInput = {
-				viewGroup: ViewGroup.MEMBER,
-				viewRefId: targetId,
-				memberId: memberId,
+				viewGroup: ViewGroup.MEMBER, // ko'rishni "member" guruhiga tegishli deb belgilaymiz
+				viewRefId: targetId, // kim ko'rildi
+				memberId: memberId, // kim ko'rdi
 			};
+
+			// ViewService: bu foydalanuvchi bu profilni birinchi marta ko'rayaptimi?
+			// newView = true   → birinchi marta (ko'rishni hisoblaymiz)
+			// newView = false  → oldin ham ko'rgan (hisoblamaymiz)
 			const newView = await this.viewService.recordView(viewInput);
 			if (newView) {
+				// Bazadagi ko'rishlar sonini 1 ga oshiramiz
 				await this.memberModel.findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true }).exec();
+				// Xotiradagi obyektni ham yangilaymiz (bazadan qayta o'qimaslik uchun)
 				targetMember.memberViews++;
 			}
-			// memberview
-			//meliked
-			//mefollowed
+			// TODO: meliked   — bu foydalanuvchini like bosganmi?
+			// TODO: mefollowed — bu foydalanuvchini follow qilganmi?
 		}
 		return targetMember;
 	}
 
 	public async getAgents(input: AgentsInquiry, memberId: ObjectId): Promise<Members> {
 		const { text } = input.search;
+
+		// Faqat ACTIVE agentlarni ko'rsatamiz
 		const match: T = {
 			memberType: 'AGENT',
 			memberStatus: MemberStatus.ACTIVE,
 		};
+
+		// Tartiblash: berilsa input.sort bo'yicha, bo'lmasa createdAt bo'yicha yangilardan eskiga
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
+		// Matn bo'yicha qidiruv: katta-kichik harfga e'tibor bermasdan (i — case insensitive)
 		if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
 		console.log('Match object for getAgents:', match);
 
 		const result = await this.memberModel
 			.aggregate([
-				{ $match: match },
-				{ $sort: sort },
+				{ $match: match }, // filtr: kimlar chiqsin
+				{ $sort: sort }, // tartib: qanday ketma-ketlikda
 				{
+					// $facet — bir so'rovda ikki natija birdan qaytaradi:
 					$facet: {
+						// list: faqat shu sahifadagi agentlar (pagination)
 						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }],
+						// metaCounter: umumiy nechta agent borligini hisoblaydi
 						metaCounter: [{ $count: 'total' }],
 					},
 				},
@@ -143,11 +165,15 @@ export class MemberService {
 		return result[0];
 	}
 
+	// Faqat ADMIN chaqira oladi — barcha foydalanuvchilarni ko'radi (filter bilan)
 	public async getAllMembersByAdmin(input: MembersInquiry): Promise<Members> {
 		const { memberStatus, memberType, text } = input.search;
+
+		// match bo'sh boshlanadi — admin filtrlamasdan ham hamma foydalanuvchini ko'ra oladi
 		const match: T = {};
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
+		// Faqat filter berilgan bo'lsa qo'shamiz (bo'sh bo'lsa mos kelganlari chiqadi)
 		if (memberStatus) match.memberStatus = memberStatus;
 		if (memberType) match.memberType = memberType;
 		if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
@@ -155,9 +181,10 @@ export class MemberService {
 
 		const result = await this.memberModel
 			.aggregate([
-				{ $match: match },
-				{ $sort: sort },
+				{ $match: match }, // filtr
+				{ $sort: sort }, // tartib
 				{
+					// getAgents dagi kabi: sahifalash + umumiy son
 					$facet: {
 						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }],
 						metaCounter: [{ $count: 'total' }],
@@ -169,6 +196,8 @@ export class MemberService {
 		return result[0];
 	}
 
+	// Admin foydalanuvchi statusini (ACTIVE/BLOCK/DELETE) yoki boshqa ma'lumotlarini o'zgartiradi
+	// updateMember dan farqi: bu yerda status cheki yo'q, ID ni ham input dan olamiz
 	public async updateMemberByAdmin(input: MemberUpdate): Promise<Member> {
 		const result: Member | null = await this.memberModel
 			.findOneAndUpdate({ _id: input._id }, input, { new: true })
@@ -176,6 +205,7 @@ export class MemberService {
 		if (!result) {
 			throw new InternalServerErrorException(Message.UPDATE_FAILED);
 		}
+		// Admin token yangilamasdan foydalanuvchi ma'lumotini qaytaradi
 		return result;
 	}
 }
