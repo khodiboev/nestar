@@ -1,121 +1,114 @@
 import { Schema } from 'mongoose';
-import { MemberAuthType, MemberStatus, MemberType } from '../libs/enums/member.enum';
+import { PropertyLocation, PropertyStatus, PropertyType } from '../libs/enums/property.enum';
 
-const MemberSchema = new Schema(
- {
-  memberType: {
-   type: String,
-   enum: MemberType,
-   default: MemberType.USER,
-  },
+const PropertySchema = new Schema(
+	{
+		propertyType: {
+			type: String,
+			enum: PropertyType,
+			required: true,
+		},
 
-  memberStatus: {
-   type: String,
-   enum: MemberStatus,
-   default: MemberStatus.ACTIVE,
-  },
+		propertyStatus: {
+			type: String,
+			enum: PropertyStatus,
+			default: PropertyStatus.ACTIVE,
+		},
 
-  memberAuthType: {
-   type: String,
-   enum: MemberAuthType,
-   default: MemberAuthType.PHONE,
-  },
+		propertyLocation: {
+			type: String,
+			enum: PropertyLocation,
+			required: true,
+		},
 
-  memberPhone: {
-   type: String,
-   index: { unique: true, sparse: true },
-   required: true,
-  },
+		propertyAddress: {
+			type: String,
+			required: true,
+		},
 
-  memberNick: {
-   type: String,
-   index: { unique: true, sparse: true },
-   required: true,
-  },
+		propertyTitle: {
+			type: String,
+			required: true,
+		},
 
-  memberPassword: {
-   type: String,
-   select: false,
-   required: true,
-  },
+		propertyPrice: {
+			type: Number,
+			required: true,
+		},
 
-  memberFullName: {
-   type: String,
-  },
+		propertySquare: {
+			type: Number,
+			required: true,
+		},
 
-  memberImage: {
-   type: String,
-   default: '',
-  },
+		propertyBeds: {
+			type: Number,
+			required: true,
+		},
 
-  memberAddress: {
-   type: String,
-  },
+		propertyRooms: {
+			type: Number,
+			required: true,
+		},
 
-  memberDesc: {
-   type: String,
-  },
+		propertyViews: {
+			type: Number,
+			default: 0,
+		},
 
-  memberProperties: {
-   type: Number,
-   default: 0,
-  },
+		propertyLikes: {
+			type: Number,
+			default: 0,
+		},
 
-  memberArticles: {
-   type: Number,
-   default: 0,
-  },
+		propertyComments: {
+			type: Number,
+			default: 0,
+		},
 
-  memberFollowers: {
-   type: Number,
-   default: 0,
-  },
+		propertyRank: {
+			type: Number,
+			default: 0,
+		},
 
-  memberFollowings: {
-   type: Number,
-   default: 0,
-  },
+		propertyImages: {
+			type: [String],
+			required: true,
+		},
 
-  memberPoints: {
-   type: Number,
-   default: 0,
-  },
+		propertyDesc: {
+			type: String,
+		},
 
-  memberLikes: {
-   type: Number,
-   default: 0,
-  },
+		propertyBarter: {
+			type: Boolean,
+			default: false,
+		},
 
-  memberViews: {
-   type: Number,
-   default: 0,
-  },
+		propertyRent: {
+			type: Boolean,
+			default: false,
+		},
 
-  memberComments: {
-   type: Number,
-   default: 0,
-  },
+		memberId: {
+			type: Schema.Types.ObjectId,
+			ref: 'Member',
+			required: true,
+		},
 
-  memberRank: {
-   type: Number,
-   default: 0,
-  },
+		soldAt: {
+			type: Date,
+		},
 
-  memberWarnings: {
-   type: Number,
-   default: 0,
-  },
+		deletedAt: {
+			type: Date,
+		},
 
-  memberBlocks: {
-   type: Number,
-   default: 0,
-  },
-
-  deletedAt: {
-   type: Date,
-  },
- },
- { timestamps: true, collection: 'members' },
+		constructedAt: {
+			type: Date,
+		},
+	},
+	{ timestamps: true, collection: 'properties' },
 );
 
-export default MemberSchema;
+export default PropertySchema;

@@ -36,5 +36,6 @@ import { ViewModule } from '../view/view.module';
 
 	// Resolver va Service ni ro'yxatdan o'tkazamiz — ular birgalikda ishlaydi
 	providers: [MemberResolver, MemberService],
+	exports: [MemberService] // Agar boshqa modullar ham MemberService ni ishlatmoqchi bo'lsa, uni export qilamiz
 })
 export class MemberModule {}

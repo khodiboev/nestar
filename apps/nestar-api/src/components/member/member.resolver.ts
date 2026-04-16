@@ -15,7 +15,7 @@ import { WithoutGuard } from '../auth/guards/without.guard';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { createWriteStream } from 'fs';
 import { Message } from '../../libs/enums/common.enum';
-
+ 
 // Qabulxona — foydalanuvchidan kelgan so'rovlarni qabul qilib, Service ga uzatadi
 @Resolver()
 export class MemberResolver {
