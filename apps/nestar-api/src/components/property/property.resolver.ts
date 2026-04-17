@@ -1,4 +1,4 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PropertyService } from './property.service';
 import { Property } from '../../libs/dto/property/property';
 import { PropertyInput } from '../../libs/dto/property/property.input';
@@ -9,6 +9,8 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import type { ObjectId } from 'mongoose';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { shapeIntoMongoObjectId } from '../../libs/config';
+import { WithoutGuard } from '../auth/guards/without.guard';
 
 @Resolver()
 export class PropertyResolver {
@@ -17,10 +19,26 @@ export class PropertyResolver {
 	@Roles(MemberType.AGENT)
 	@UseGuards(AuthGuard, RolesGuard)
 	@Mutation(() => Property)
-	public async createProperty(@Args('input') input: PropertyInput, @AuthMember('_id') memberId: ObjectId): Promise<Property> {
+	public async createProperty(
+		@Args('input') input: PropertyInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Property> {
 		console.log('Mutation: createProperty');
-    input.memberId = memberId;
-    return await this.propertyService.createProperty(input);
+		input.memberId = memberId;
+
+		return await this.propertyService.createProperty(input);
 	}
 
+	@UseGuards(WithoutGuard)
+	@Query(() => Property)
+	public async getProperty(
+		@Args('propertyId') input: string,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Property> {
+		console.log('Query: getProperty');
+		const propertyId = shapeIntoMongoObjectId(input);
+		return await this.propertyService.getProperty(propertyId, memberId);
+	}
 }
+
+

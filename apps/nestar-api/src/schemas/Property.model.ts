@@ -108,7 +108,10 @@ const PropertySchema = new Schema(
 			type: Date,
 		},
 	},
-	{ timestamps: true, collection: 'properties' },
+	{
+		timestamps: true,
+		collection: 'properties',
+	},
 );
 
 export default PropertySchema;
