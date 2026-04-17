@@ -13,7 +13,11 @@ import { shapeIntoMongoObjectId } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
 import { Properties } from '../../libs/dto/property/property';
-import { AgentPropertiesInquiry, PropertiesInquiry } from '../../libs/dto/property/property.input';
+import {
+	AgentPropertiesInquiry,
+	AllPropertiesInquiry,
+	PropertiesInquiry,
+} from '../../libs/dto/property/property.input';
 
 @Resolver()
 export class PropertyResolver {
@@ -65,15 +69,27 @@ export class PropertyResolver {
 		return await this.propertyService.getProperties(memberId, input);
 	}
 
-
 	@Roles(MemberType.AGENT)
-@UseGuards(RolesGuard)
-@Query(() => Properties)
-public async getAgentProperties(
-    @Args('input') input: AgentPropertiesInquiry,
-    @AuthMember('_id') memberId: ObjectId,
-): Promise<Properties> {
-    console.log('Query: getAgentProperties');
-    return await this.propertyService.getAgentProperties(memberId, input);
-}
+	@UseGuards(RolesGuard)
+	@Query(() => Properties)
+	public async getAgentProperties(
+		@Args('input') input: AgentPropertiesInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Properties> {
+		console.log('Query: getAgentProperties');
+		return await this.propertyService.getAgentProperties(memberId, input);
+	}
+
+	/** ADMIN */
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Query(() => Properties)
+	public async getAllPropertiesByAdmin(
+		@Args('input') input: AllPropertiesInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Properties> {
+		console.log('Query: getAllPropertiesByAdmin');
+		return await this.propertyService.getAllPropertiesByAdmin(input);
+	}
 }
