@@ -12,6 +12,8 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
+import { Properties } from '../../libs/dto/property/property';
+import { AgentPropertiesInquiry, PropertiesInquiry } from '../../libs/dto/property/property.input';
 
 @Resolver()
 export class PropertyResolver {
@@ -41,7 +43,6 @@ export class PropertyResolver {
 		return await this.propertyService.getProperty(propertyId, memberId);
 	}
 
-
 	@Roles(MemberType.AGENT)
 	@UseGuards(RolesGuard)
 	@Mutation(() => Property)
@@ -53,4 +54,26 @@ export class PropertyResolver {
 		input._id = shapeIntoMongoObjectId(input._id);
 		return await this.propertyService.updateProperty(memberId, input);
 	}
+
+	@UseGuards(WithoutGuard)
+	@Query(() => Properties)
+	public async getProperties(
+		@Args('input') input: PropertiesInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Properties> {
+		console.log('Query: getProperties');
+		return await this.propertyService.getProperties(memberId, input);
+	}
+
+
+	@Roles(MemberType.AGENT)
+@UseGuards(RolesGuard)
+@Query(() => Properties)
+public async getAgentProperties(
+    @Args('input') input: AgentPropertiesInquiry,
+    @AuthMember('_id') memberId: ObjectId,
+): Promise<Properties> {
+    console.log('Query: getAgentProperties');
+    return await this.propertyService.getAgentProperties(memberId, input);
+}
 }
