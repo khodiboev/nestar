@@ -110,6 +110,7 @@ export class PropertyService {
 		const match: T = { propertyStatus: PropertyStatus.ACTIVE };
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
+		//shapeMatchQuery funksiyasi match obyektini inputdagi search kriteriyalariga qarab shakllantiradi. Masalan, agar input.search ichida locationList mavjud bo'lsa, match.propertyLocation = { $in: locationList } qo'shiladi. Bu match keyin aggregate pipeline'da $match bosqichida ishlatiladi va shu orqali kerakli filterlarga mos keladigan property'lar olinadi.
 		this.shapeMatchQuery(match, input);
 		console.log('match:', match);
 
@@ -137,6 +138,7 @@ export class PropertyService {
 	}
 
 	private shapeMatchQuery(match: T, input: PropertiesInquiry): void {
+		//bu yerda - search qismidagi barcha filterlarni tekshirib, agar inputda mavjud bo'lsa, match obyektiga qo'shamiz. Bu match keyin aggregate pipeline'da $match bosqichida ishlatiladi.
 		const {
 			memberId,
 			locationList,
@@ -200,7 +202,7 @@ export class PropertyService {
 		return result[0];
 	}
 
-	public async getAllPropertiesByAdmin(input: AllPropertiesInquiry): Promise<Properties> {
+	public async getAllPropertiesByAdmin(input: AllPropertiesInquiry): Promise<Properties> { 
 		const { propertyStatus, propertyLocationList } = input.search;
 		const match: T = {};
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
