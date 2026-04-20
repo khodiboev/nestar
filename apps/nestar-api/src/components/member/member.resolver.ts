@@ -57,7 +57,7 @@ export class MemberResolver {
 	): Promise<Member> {
 		console.log('Mutation: updateMember');
 		delete (input as any)._id;
-		return	await this.memberService.updateMember(memberId, input);
+		return await this.memberService.updateMember(memberId, input);
 	}
 
 	@UseGuards(WithoutGuard)
@@ -75,7 +75,6 @@ export class MemberResolver {
 		console.log('Query: getAgents');
 		return await this.memberService.getAgents(input, memberId);
 	}
-
 
 	// Admin-only queries and mutations
 
