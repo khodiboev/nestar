@@ -47,7 +47,7 @@ export class MemberResolver {
 		console.log('Query: checkAuthRoles');
 		console.log('Authenticated memberNick:', authMember.memberNick);
 		return `Hi ${authMember.memberNick}, you are ${authMember.memberType}, (memberId: ${authMember._id})`;
-	}
+	} 
 
 	@UseGuards(AuthGuard)
 	@Mutation(() => Member)
