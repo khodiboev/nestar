@@ -16,6 +16,7 @@ import { BoardArticleUpdate } from '../../libs/dto/board-article/board-article.u
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { Member } from '../../libs/dto/member/member';
 
 @Resolver()
 export class BoardArticleResolver {
@@ -61,6 +62,17 @@ export class BoardArticleResolver {
 	): Promise<BoardArticles> {
 		console.log('Query: getBoardArticles');
 		return await this.boardArticleService.getBoardArticles(memberId, input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => BoardArticle)
+	public async likeTargetBoardArticle(
+		@Args('articleId') input: string,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<BoardArticle> {
+		console.log('Mutation: likeTargetBoardArticle');
+		const likeRefId = shapeIntoMongoObjectId(input);
+		return await this.boardArticleService.likeTargetBoardArticle(memberId, likeRefId);
 	}
 
 	/** ADMIN */
