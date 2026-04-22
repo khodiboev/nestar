@@ -136,8 +136,6 @@ export class MemberService {
 		return result[0];
 	}
 
-
-
 	public async likeTargetMember(memberId: ObjectId, likeRefId: ObjectId): Promise<Member> {
 		const target = await this.memberModel.findOne({ _id: likeRefId, memberStatus: MemberStatus.ACTIVE }).exec();
 		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
@@ -149,14 +147,11 @@ export class MemberService {
 		};
 
 		const modifier: number = await this.likeService.toggleLike(input);
-		const result = await this.memberStatsEditor({_id: likeRefId, targetKey: 'memberLikes', modifier});
+		const result = await this.memberStatsEditor({ _id: likeRefId, targetKey: 'memberLikes', modifier });
 
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 		return result;
 	}
-
-
-
 
 	public async getAllMembersByAdmin(input: MembersInquiry): Promise<Members> {
 		const { memberStatus, memberType, text } = input.search;

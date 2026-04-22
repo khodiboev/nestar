@@ -18,6 +18,7 @@ import {
 	AllPropertiesInquiry,
 	PropertiesInquiry,
 } from '../../libs/dto/property/property.input';
+import { Member } from '../../libs/dto/member/member';
 
 @Resolver()
 export class PropertyResolver {
@@ -78,6 +79,17 @@ export class PropertyResolver {
 	): Promise<Properties> {
 		console.log('Query: getAgentProperties');
 		return await this.propertyService.getAgentProperties(memberId, input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => Property)
+	public async likeTargetProperty(
+		@Args('propertyId') input: string,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Property> {
+		console.log('Mutation: likeTargetProperty');
+		const likeRefId = shapeIntoMongoObjectId(input);
+		return await this.propertyService.likeTargetProperty(memberId, likeRefId);
 	}
 
 	/** ADMIN */
