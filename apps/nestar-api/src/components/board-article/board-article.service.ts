@@ -161,7 +161,7 @@ export class BoardArticleService {
 			})
 			.exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
-
+		
 		if (articleStatus === BoardArticleStatus.DELETE) {
 			await this.memberService.memberStatsEditor({
 				_id: result.memberId,
@@ -188,3 +188,4 @@ export class BoardArticleService {
 			.exec()) as BoardArticle;
 	}
 }
+ 

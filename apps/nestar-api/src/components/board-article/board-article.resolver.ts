@@ -22,7 +22,7 @@ export class BoardArticleResolver {
 	constructor(private readonly boardArticleService: BoardArticleService) {}
 
 	@UseGuards(AuthGuard)
-	@Mutation((_returns) => BoardArticle)
+	@Mutation((returns) => BoardArticle)
 	public async createBoardArticle(
 		@Args('input') input: BoardArticleInput,
 		@AuthMember('_id') memberId: ObjectId,
@@ -32,7 +32,7 @@ export class BoardArticleResolver {
 	}
 
 	@UseGuards(WithoutGuard)
-	@Query((_returns) => BoardArticle)
+	@Query(() => BoardArticle)
 	public async getBoardArticle(
 		@Args('articleId') input: string,
 		@AuthMember('_id') memberId: ObjectId,
@@ -54,7 +54,7 @@ export class BoardArticleResolver {
 	}
 
 	@UseGuards(WithoutGuard)
-	@Query((_returns) => BoardArticles)
+	@Query(() => BoardArticles)
 	public async getBoardArticles(
 		@Args('input') input: BoardArticlesInquiry,
 		@AuthMember('_id') memberId: ObjectId,
@@ -67,7 +67,7 @@ export class BoardArticleResolver {
 
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
-	@Query((_returns) => BoardArticles)
+	@Query((returns) => BoardArticles)
 	public async getAllBoardArticlesByAdmin(
 		@Args('input') input: AllBoardArticlesInquiry,
 		@AuthMember('_id') _memberId: ObjectId,
