@@ -47,7 +47,7 @@ export class MemberResolver {
 		console.log('Query: checkAuthRoles');
 		console.log('Authenticated memberNick:', authMember.memberNick);
 		return `Hi ${authMember.memberNick}, you are ${authMember.memberType}, (memberId: ${authMember._id})`;
-	} 
+	}
 
 	@UseGuards(AuthGuard)
 	@Mutation(() => Member)
@@ -76,12 +76,11 @@ export class MemberResolver {
 		return await this.memberService.getAgents(input, memberId);
 	}
 
-
 	@UseGuards(AuthGuard)
 	@Mutation(() => Member)
 	public async likeTargetMember(
 		@Args('memberId') input: string,
-		@AuthMember('_id') memberId: ObjectId
+		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Member> {
 		console.log('Mutation: likeTargetMember');
 		const likeRefId = shapeIntoMongoObjectId(input);
