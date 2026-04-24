@@ -1,7 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PropertyService } from './property.service';
 import { Property } from '../../libs/dto/property/property';
-import { PropertyInput } from '../../libs/dto/property/property.input';
+import { OrdinaryInquiry, PropertyInput } from '../../libs/dto/property/property.input';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { UseGuards } from '@nestjs/common';
@@ -24,7 +24,7 @@ import { Member } from '../../libs/dto/member/member';
 export class PropertyResolver {
 	constructor(private readonly propertyService: PropertyService) {}
 
-	@Roles(MemberType.AGENT) 
+	@Roles(MemberType.AGENT)
 	@UseGuards(AuthGuard, RolesGuard)
 	@Mutation(() => Property)
 	public async createProperty(
@@ -68,6 +68,16 @@ export class PropertyResolver {
 	): Promise<Properties> {
 		console.log('Query: getProperties');
 		return await this.propertyService.getProperties(memberId, input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Query((returns) => Properties)
+	public async getFavorites(
+		@Args('input') input: OrdinaryInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Properties> {
+		console.log('Query: getFavorites');
+		return await this.propertyService.getFavorites(memberId, input);
 	}
 
 	@Roles(MemberType.AGENT)
