@@ -24,7 +24,7 @@ import { Member } from '../../libs/dto/member/member';
 export class PropertyResolver {
 	constructor(private readonly propertyService: PropertyService) {}
 
-	@Roles(MemberType.AGENT)
+	@Roles(MemberType.AGENT) 
 	@UseGuards(AuthGuard, RolesGuard)
 	@Mutation(() => Property)
 	public async createProperty(
