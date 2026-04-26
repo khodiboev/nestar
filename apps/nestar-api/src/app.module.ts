@@ -8,6 +8,7 @@ import { AppResolver } from './app.resolver';
 import { ComponentsModule } from './components/components.module';
 import { DatabaseModule } from './database/database.module';
 import { T } from './libs/types/common';
+import { SocketModule } from './socket/socket.module';
 
 // Dasturning bosh moduli — barcha qismlar shu yerda yig'iladi
 @Module({
@@ -45,6 +46,8 @@ import { T } from './libs/types/common';
 
 		// Ma'lumotlar bazasi bilan bog'lanishni ta'minlaydi
 		DatabaseModule,
+
+		SocketModule,
 	],
 
 	// So'rovlarni qabul qiluvchi — "qabulxona" vazifasini bajaradi
